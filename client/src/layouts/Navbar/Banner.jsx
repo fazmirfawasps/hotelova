@@ -85,7 +85,7 @@ function Banner() {
                 alignItems: 'center',
                 p: 2,
                 backgroundImage:
-                    'url("https://hotelova.s3.ap-south-1.amazonaws.com/wp1846099.jpg")',
+                    'url("https://imageio.forbes.com/specials-images/imageserve/648f06a6152abcf5ef5e44a9/e125175d2a6f8fed0c71b983c4d1368d/960x0.jpg?format=jpg&width=960")',
                 backgroundSize: 'cover',
                 backgroundPosition: 'top',
                 backgroundRepeat: 'no-repeat',
