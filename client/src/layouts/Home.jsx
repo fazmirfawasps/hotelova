@@ -1,4 +1,4 @@
-import { Typography, Container, Button, Grid } from '@mui/material'
+import { Typography, Container, Grid } from '@mui/material'
 import React, { useCallback, useEffect, useRef, useState } from 'react'
 import {
     deleteWishlist,
@@ -15,11 +15,8 @@ import {
     toInitialState,
 } from '../Redux/properties/propertiesAction'
 import { Box } from '@mui/system'
-import MapIcon from '@mui/icons-material/Map'
-import FormatListBulletedIcon from '@mui/icons-material/FormatListBulleted'
 import { addSingleProperty } from '../Redux/singleProperty/singlePropAction'
 import { useNavigate } from 'react-router-dom'
-import MapPage from './MapPage'
 import {
     addtowishlist,
     removefromwishlist,
@@ -112,11 +109,6 @@ function Home() {
         addWishlist()
     }
 
-    const [notMap, setnotMap] = useState(true)
-
-    function handlePage() {
-        setnotMap((prev) => !prev)
-    }
 
     function navigetTosinglepage(id) {
         let singleProperty = Property.find((item) => item._id == id)
@@ -171,8 +163,7 @@ function Home() {
 
     return (
         <Box>
-            {notMap && (
-                <>
+              <>
                     <Banner />
                     <Container
                         maxWidth="xl"
@@ -194,37 +185,8 @@ function Home() {
                         </Grid>
                     </Container>
                 </>
-            )}
-            {notMap == false && <MapPage property={Property} />}
-            <div
-                style={{
-                    display: 'flex',
-                    justifyContent: 'center',
-                    position: 'sticky',
-                    bottom: 60,
-                    zIndex: 10,
-                    width: '100%',
-                }}
-            >
-                <Box>
-                    <Button
-                        variant="contained"
-                        sx={{
-                            bgcolor: '#222222',
-                            color: 'white',
-                            borderRadius: 6,
-                            height: 50,
-                        }}
-                        onClick={handlePage}
-                        size="medium"
-                        endIcon={
-                            notMap ? <MapIcon /> : <FormatListBulletedIcon />
-                        }
-                    >
-                        {notMap ? 'Show Map' : 'Show List'}
-                    </Button>
-                </Box>
-            </div>
+            
+           
         </Box>
     )
 }

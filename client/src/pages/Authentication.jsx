@@ -1,11 +1,8 @@
-import React, { useContext } from 'react'
-import { ExternalContext } from '../context/CustomContext'
+import React from 'react'
 import Form from '../layouts/userAuth/Loginform'
-import Otpform from '../layouts/userAuth/Otpform'
 
 function Authentication() {
-    const { isfilled } = useContext(ExternalContext)
-    return <>{isfilled ? <Otpform /> : <Form />}</>
+    return <> <Form /></>
 }
 
 export default Authentication

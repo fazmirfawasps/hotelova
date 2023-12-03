@@ -1,15 +1,13 @@
-import React, { useState, useContext, useEffect } from 'react'
+import React, { useState, useContext,  } from 'react'
 import { ExternalContext } from '../../context/CustomContext'
 import Box from '@mui/material/Box'
 import MenuItem from '@mui/material/MenuItem'
 import { Stack } from '@mui/system'
 import { ThemeProvider } from '@mui/material/styles'
-import Divider from '@mui/material/Divider'
-import { GoogleLogin } from '@react-oauth/google'
-import { onSigninssubmit, recaptcha } from '../../config/firebaseOtpConfig'
+
 import Flag from '../../data'
 import { theme0 } from '../../Themeprovider'
-import { checkblocked, sendGmaildata } from '../../api/api'
+import { checkblocked,  sendOtopData } from '../../api/api'
 import { Typography } from '@mui/material'
 import Button from '@mui/material/Button'
 import InputTextField from '../../component/BasicTextFields'
@@ -25,7 +23,6 @@ function Form() {
         setOpen,
         setAlert,
         setOpenlogin,
-        setShowErr,
     } = useContext(ExternalContext)
     const dispatch = useDispatch()
 
@@ -35,47 +32,9 @@ function Form() {
     })
 
     const [headerror, setheaderror] = useState(false)
-    // const matches = useMediaQuery('(min-width:600px)')
 
-    useEffect(() => {
-        recaptcha()
-    }, [])
 
-    function handlegooglelogin(data) {
-        sendGmaildata(data)
-            .then(({ data }) => {
-                const { _id, phonenumber, email, username, accessToken } = data
-                if (phonenumber.length != 13 || email.length < 5) {
-                    dispatch(setCheckUser(true))
-                }
-                let obj = {
-                    userDetails: {
-                        _id,
-                        phonenumber,
-                        email,
-                        username,
-                        token: accessToken,
-                    },
-                }
-                dispatch(setUserDetails(obj))
-                setOpenlogin(false)
-                setAlert({
-                    notify: true,
-                    message: 'logged in successfully',
-                    action: 'success',
-                })
-                setOpen(false)
-            })
-            .catch((err) => {
-                if (err.response.status === 403) {
-                    setheaderror(true)
-                } else {
-                    setShowErr(true)
-                    setOpen(false)
-                }
-            })
-    }
-
+   
     function handlesubmit() {
         /* eslint-disable no-useless-escape */
         if (
@@ -91,19 +50,47 @@ function Form() {
                 phonenumber: userDetails.countrycode + userDetails.phonenumber,
             })
                 .then(() => {
-                    onSigninssubmit(
-                        userDetails.countrycode,
-                        userDetails.phonenumber
-                    )
-                        .then(() => {
-                            setIsfilled(true)
+
+                    sendOtopData({
+                        phonenumber: userDetails.countrycode + userDetails.phonenumber,
+                    })
+                    .then((response) => {
+                        console.log(response)
+                        const {
+                            _id,
+                            phonenumber,
+                            email,
+                            username,
+                            accessToken,
+                        } = response.data
+                        if (phonenumber.length != 13 || email.length < 5) {
+                            dispatch(setCheckUser(true))
+                        }
+                        let obj = {
+                            userDetails: {
+                                _id,
+                                phonenumber,
+                                email,
+                                username,
+                                token: accessToken,
+                            },
+                        }
+                        dispatch(setUserDetails(obj))
+                        setOpenlogin(false)
+                        setAlert({
+                            notify: true,
+                            message: 'logged in successfully',
+                            action: 'success',
                         })
-                        .catch(() => {
-                            seterror({
-                                error: true,
-                                helperText: 'phonenumber is invalid',
-                            })
-                        })
+                        setOpen(false)
+                        setIsfilled(false)
+                    })
+                    .catch(() => {
+                        seterror({
+                                        error: true,
+                                        helperText: 'phonenumber is invalid',
+                                    })
+                    })
                 })
                 .catch(() => {
                     setheaderror(true)
@@ -199,16 +186,7 @@ function Form() {
                         continue
                     </Button>
                 </ThemeProvider>
-                <Divider>or</Divider>
-
-                <GoogleLogin
-                    onSuccess={(credentialResponse) => {
-                        handlegooglelogin(credentialResponse.credential)
-                    }}
-                    onError={() => {
-                        alert('Login Failed')
-                    }}
-                />
+                
             </Stack>
         </Box>
     )

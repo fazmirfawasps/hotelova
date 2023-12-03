@@ -20,6 +20,15 @@ const io = require("socket.io")(server, {
 });
 
 require('./listeners/socketManager')(io);
+const path = require('path');
+
+// Get the filename of the current module
+const filename = __filename;
+
+// Get the directory name of the current module
+const dirname = path.dirname(filename);
+console.log(path.join(dirname, "/images"));
+app.use(express.static(path.join(dirname, "../images")));
 
 app.use(express.static("public"));
 app.use(express.urlencoded({ extended: true }));
@@ -29,8 +38,7 @@ app.use(morgan("dev"));
 
 app.use(
   cors({
-    origin: '*',
-    // credentials: false,
+    origin:'*',
     optionsSuccessStatus: 200,
 
   })
@@ -68,6 +76,9 @@ mongoose
 app.use("/server/users", userRouter);
 
 app.use("/server/admin", adminRouter);
+app.use('/server/image', 
+  express.static('src/images')
+);
 
 server.listen(4000, () => {
   console.log("server running");

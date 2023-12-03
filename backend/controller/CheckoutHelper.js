@@ -1,5 +1,4 @@
 require("dotenv").config();
-const stripe = require("stripe")(process.env.STRIPE_KEY);
 const propertyCollection = require("../model/propertyCollection");
 const BookingCollection = require("../model/BookingCollection");
 const mongoose = require("mongoose");
@@ -29,79 +28,8 @@ module.exports = {
     req.session.TotalAmount = TotalAmount;
     const TotalGuestAllowed = Maxguest * Room;
     const GuestInBooking = children + adult;
-
-    try {
-      if (GuestInBooking <= TotalGuestAllowed && Price) {
-        const session = await stripe.checkout.sessions.create({
-          shipping_options: [
-            {
-              shipping_rate_data: {
-                type: "fixed_amount",
-                fixed_amount: { amount: 0, currency: "INR" },
-                display_name: "Free shipping",
-              },
-            },
-            {
-              shipping_rate_data: {
-                type: "fixed_amount",
-                fixed_amount: { amount: 1500, currency: "INR" },
-                display_name: "Next day air",
-              },
-            },
-          ],
-          line_items: [
-            {
-              price_data: {
-                currency: "INR",
-                product_data: {
-                  name: PropertyName,
-                  description: Address,
-                },
-                unit_amount: TotalAmount * 100,
-              },
-              quantity: 1,
-            },
-          ],
-          metadata: {
-            Propertyid: _id,
-            userid: userid,
-            hostid,
-            checkin,
-            checkOut,
-            adult,
-            children,
-            bookedRoom: bookedRoom.toString(),
-          },
-          mode: "payment",
-          success_url: "https://hotelova.site/success",
-          cancel_url: "https://hotelova.site/cancel",
-        });
-        req.session.verifyid = session.id;
-        res.send({ url: session.url });
-        return;
-      }
-    } catch (err) {
-      res.send({ url: "https://hotelova.site/cancel" })
-    }
-  },
-
-  PlaceOrder: async (req, res) => {
-    const updatedSession = await stripe.checkout.sessions.retrieve(
-      req.session.verifyid
-    );
-    const {
-      Propertyid,
-      adult,
-      children,
-      checkOut,
-      checkin,
-      hostid,
-      userid,
-      bookedRoom,
-    } = updatedSession.metadata;
-
     const document = {
-      propertyid: Propertyid,
+      propertyid:i= _id,
       hostid,
       userid,
       guest: {
@@ -110,29 +38,29 @@ module.exports = {
       },
       checkin: new Date(checkin),
       checkOut: new Date(checkOut),
-      Paymentstatus: updatedSession.payment_status,
-      totalprice: updatedSession.amount_total.toString().slice(0, -2),
+      Paymentstatus: "paid",
+      totalprice: TotalAmount,
       OrderStatus: "Booking pending",
     };
-    let propID = new mongoose.Types.ObjectId(Propertyid);
-    const queryProperty = await propertyCollection.findOne({ _id: propID });
-
+    await BookingCollection.create(document);
+    const unavailableDates = getAllBookedDates(checkin, checkOut);
+    let result = await RoomCollection.updateMany(
+      { _id: { $in: bookedRoom } },
+      { $addToSet: { DatesNotAvailable: { $each: unavailableDates } } }
+    );
     try {
-      if (updatedSession.payment_status == "paid") {
-        await BookingCollection.create(document);
-        const unavailableDates = getAllBookedDates(checkin, checkOut);
-        let result = await RoomCollection.updateMany(
-          { _id: { $in: bookedRoom.split(",") } },
-          { $addToSet: { DatesNotAvailable: { $each: unavailableDates } } }
-        );
+      if (GuestInBooking <= TotalGuestAllowed && Price) {
+       
         res.status(200).send('success')
+
         return;
       }
-      throw new Error('payment not success')
     } catch (err) {
-      res.status(500).send(err);
+      res.send({ url: "http://localhost:3000/cancel" })
     }
   },
+
+ 
 
   getOrders: async (req, res) => {
     try {

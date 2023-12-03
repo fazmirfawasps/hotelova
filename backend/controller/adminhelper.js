@@ -4,19 +4,23 @@ const jwt = require("jsonwebtoken");
 const BookingCollection = require("../model/BookingCollection");
 const propertyCollection = require("../model/propertyCollection");
 require("dotenv").config();
-const username ='admin@gmailcom'
+const username = "admin@gmail.com";
+const pass = '1234';
 module.exports = {
   login: async (req, res) => {
     try {
-      // let result = await admin.findOne(req.body);
-      if (true) {
+      const email = req.body.username;
+       const password=req.body.password
+    
+
+      if (email == username && password == pass) {
+        console.log('hi');
         let accessToken = jwt.sign(
           { username: username },
           process.env.ACCESS_TOKEN_SECRET_ADMIN,
           { expiresIn: "2d" }
         );
-        // await admin.updateOne({ _id: result._id }, { $set: { accessToken } });
-        res.status(200).send({token:accessToken})
+        res.status(200).send({ token: accessToken });
         return;
       }
     } catch (err) {
@@ -204,7 +208,7 @@ module.exports = {
           $project: { date: { $arrayElemAt: ["$date", 0] }, _id: 1, total: 1 },
         },
         { $sort: { date: 1 } },
-        {$limit:7}
+        { $limit: 7 },
       ]);
       allData["newUserPerDay"] = newUserPerDay;
       const totalBookingPerDay = await BookingCollection.aggregate([
@@ -244,10 +248,10 @@ module.exports = {
         { $group: { _id: 0, weeklyAmount: { $sum: "$totalprice" } } },
         { $project: { weeklyAmount: 1, _id: 0 } },
       ]);
-      allData["moneyGeneratedPerWeek"] = moneyGeneratedPerWeek[0]?.weeklyAmount
+      allData["moneyGeneratedPerWeek"] = moneyGeneratedPerWeek[0]?.weeklyAmount;
       res.status(200).json(allData);
     } catch (err) {
-      console.log(err)
+      console.log(err);
       res.status(500).send(err);
     }
   },

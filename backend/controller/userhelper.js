@@ -11,21 +11,24 @@ const stripe = require("stripe")(process.env.STRIPE_KEY);
 module.exports = {
   otplogin: async (req, res) => {
     try {
-      var decoded = jwt_decode(req.body.accessToken);
+      console.log(req.body);
+      // var decoded = jwt_decode(req.body.accessToken);
 
-      let result = await user
-        .findOne({
-          $or: [
-            { otpAuth_id: decoded.user_id },
-            { phonenumber: decoded.phone_number },
-          ],
-        })
-        .exec();
+      // let result = await user
+      //   .findOne({
+      //     $or: [
+      //       // { otpAuth_id: decoded.user_id },
+      //       { phonenumber: req.body.phonenumber },
+      //     ],
+      //   })
+      //   .exec();
+      let result = await user.findOne({ phonenumber: req.body.phonenumber });
+      console.log(result);
 
       if (!result) {
         let data = {
-          phonenumber: decoded.phone_number,
-          otpAuth_id: decoded.user_id,
+          phonenumber: req.body.phonenumber,
+          otpAuth_id: "",
           username: "",
           email: "",
           address: {
@@ -66,7 +69,7 @@ module.exports = {
         phonenumber: result.phonenumber,
         email: result.email,
         username: result.username,
-        Wallet:result.Wallet
+        Wallet: result.Wallet,
       });
     } catch (error) {
       res.sendStatus(400);
@@ -242,8 +245,8 @@ module.exports = {
         {
           $addFields: {
             property: { $arrayElemAt: ["$property", 0] },
-          }
-        }
+          },
+        },
       ]);
       let whishlistitem = result.map((item) => item.property);
 
@@ -253,12 +256,15 @@ module.exports = {
       res.status(500).send(err);
     }
   },
-  getWallet: async(req, res) => {
+  getWallet: async (req, res) => {
     try {
-      let wallet = await userCollection.findOne({ _id: req.params.userid }, {_id:0,Wallet: 1 })
-      res.status(200).json(wallet)
+      let wallet = await userCollection.findOne(
+        { _id: req.params.userid },
+        { _id: 0, Wallet: 1 }
+      );
+      res.status(200).json(wallet);
     } catch (err) {
-      res.status(500).send(err)
+      res.status(500).send(err);
     }
-  }
+  },
 };

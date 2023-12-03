@@ -168,10 +168,11 @@ export default function BookingCard({ SingleProperty }) {
                 guestTotalAmount
             )
                 .then((response) => {
-                    window.location.href = response.data.url
+                    window.location.href = "http://localhost:3000/success"
                 })
                 .catch((err) => {
-                    alert(err)
+                    window.location.href = "http://localhost:3000/cancel"
+
                 })
         } else {
             setAlert({

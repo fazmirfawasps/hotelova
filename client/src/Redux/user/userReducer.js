@@ -1,11 +1,11 @@
 import { hostApplied, Logout, setCheckuser, setHost, setUser } from './userType'
 
 const initialstate = {
-    userDetails: {},
-    isLoggedin: false,
+    userDetails: {name:'fazmir fawas'},
+    isLoggedin: true,
     Checkuserornot: false,
     ishosted: false,
-    jwttoken: '',
+    jwttoken: 'true',
     hostApplied: false,
 }
 

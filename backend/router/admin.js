@@ -21,7 +21,7 @@ const {
   editAmenties,
 } = require("../controller/property");
 const router = express.Router();
-const {uploads3} = require("../controller/multer");
+const { itemUpload} = require("../controller/multer");
 const { verifyJWTAdmin } = require("../controller/jwt/jwtVerifyAdmin");
 const { Cancelbooking } = require("../controller/CheckoutHelper");
 const app = express();
@@ -42,21 +42,21 @@ router.get("/getAllproperty", getAllproperty);
 
 router.delete("/removeProperty/:id", removeProperty);
 
-router.post("/addRoomType", uploads3.single("images"), addRoomType);
+router.post("/addRoomType", itemUpload.single("images"), addRoomType);
 
 router.get("/getRoomType", getRoomType);
 
 router.delete("/removeRoomType/:id", removeRoomType);
 
-router.put("/editRoomType", uploads3.single("images"), editRoomType);
+router.put("/editRoomType", itemUpload.single("images"), editRoomType);
 
-router.post("/addAmenities", uploads3.single("images"), addAmenties);
+router.post("/addAmenities", itemUpload.single("images"), addAmenties);
 
 router.get("/getAllAmenities", getAmenities);
 
 router.delete("/removeAmenities/:id", removeAmenities);
 
-router.put("/editAminities", uploads3.single("images"), editAmenties);
+router.put("/editAminities", itemUpload.single("images"), editAmenties);
 
 router.get("/getAllBookings", getBookings);
 

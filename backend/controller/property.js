@@ -6,11 +6,6 @@ const propertyCollection = require("../model/propertyCollection");
 const userCollection = require("../model/userCollection");
 const RoomCollection = require("../model/RoomCollection");
 const { default: mongoose } = require("mongoose");
-const {
-  DeleteObjectsCommand,
-  DeleteObjectCommand,
-} = require("@aws-sdk/client-s3");
-const { s3 } = require("./multer");
 
 module.exports = {
   addproperty: async (req, res) => {
@@ -43,7 +38,7 @@ module.exports = {
         }
       }
 
-      let img = req.files.map((item) => item.location);
+      let img = req.files.map((item) => `http://localhost:4000/server/image/${item.filename}`);
       parsedFormData["images"] = img;
 
       let result = await property.create(parsedFormData);
@@ -104,7 +99,7 @@ module.exports = {
       }
 
       if (req.files) {
-        let img = req.files.map((item) => item.location);
+        let img = req.files.map((item) => `http://localhost:4000/server/image/${item.filename}`);
         if (!parsedFormData.images) {
           parsedFormData.images = [];
         }
@@ -196,27 +191,8 @@ module.exports = {
   removeProperty: async (req, res) => {
     try {
       let doc = await property.findByIdAndDelete({ _id: req.params.id });
-      console.log('dfdf');
-      // console.log(doc.images.map((item)=>item.slice(item.lastIndexOf('/')+1)))
-      const params = {
-        Bucket: "cambiame",
-        Delete: {
-          Objects: doc.images.map((item) => ({
-            Key: item.slice(item.lastIndexOf("/") + 1),
-          })),
-        },
-      };
-
-      const command = new DeleteObjectsCommand(params);
-
-      s3.send(command, function (err, data) {
-        if (err) {
-          console.log("Error deleting object:", err);
-        } else {
-          console.log("Object deleted successfully");
-        }
-      });
-
+     
+      
       await RoomCollection.deleteMany({
         PropertyId: req.params.id,
       });
@@ -228,7 +204,8 @@ module.exports = {
 
   addRoomType: async (req, res) => {
     try {
-      let img = req.file.location;
+      let img = `http://localhost:4000/server/image/${req.file.filename}`;
+
       req.body.image = [img];
       await RoomTypeCollection.create(req.body);
       res.sendStatus(200);
@@ -247,19 +224,7 @@ module.exports = {
       const doc = await RoomTypeCollection.findByIdAndDelete({
         _id: req.params.id,
       });
-      const params = {
-        Bucket: "cambiame",
-        Key: doc.image[0],
-      };
-      const command = new DeleteObjectCommand(params);
-
-      s3.send(command, (err, data) => {
-        if (err) {
-          console.log("Error deleting object:", err);
-        } else {
-          console.log("Object deleted successfully");
-        }
-      });
+      
       res.sendStatus(200);
     } catch (err) {
       res.status(500).send(err);
@@ -270,7 +235,9 @@ module.exports = {
       let result = await RoomTypeCollection.findOne({ _id: req.body._id });
       if (result) {
         if (req.file) {
-          let img = req.file.location;
+          let img = `http://localhost:4000/server/image/${req.file.filename}`;
+          ;
+
           req.body.image = [img];
         }
         await RoomTypeCollection.updateOne(
@@ -287,7 +254,8 @@ module.exports = {
   },
   addAmenties: async (req, res) => {
     try {
-      let img = req.file.location;
+      let img = `http://localhost:4000/server/image/${req.file.filename}`;
+
       req.body.image = [img];
       await aminitiesCollection.create(req.body);
       res.sendStatus(200);
@@ -306,19 +274,7 @@ module.exports = {
       const doc = await aminitiesCollection.findByIdAndDelete({
         _id: req.params.id,
       });
-      const params = {
-        Bucket: "cambiame",
-        Key: doc.image[0],
-      };
-      const command = new DeleteObjectCommand(params);
-
-      s3.send(command, (err, data) => {
-        if (err) {
-          console.log("Error deleting object:", err);
-        } else {
-          console.log("Object deleted successfully");
-        }
-      });
+    
       res.sendStatus(200);
     } catch (err) {
       res.status(403).send("error occured");
@@ -329,6 +285,7 @@ module.exports = {
       let result = await aminitiesCollection.findOne({ _id: req.body._id });
       if (result) {
         if (req.file) {
+          
           let img = req.file.location;
           req.body.image = [img];
         }

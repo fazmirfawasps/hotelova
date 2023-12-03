@@ -21,7 +21,6 @@ function PropertyType() {
             })
     }, [])
 
-    // const [Addressdata, AddressSetData] = useState(null)
     const [inputValue, setInputValue] = useState(getValues('Address'))
     const [suggestions, setSuggestions] = useState([])
 
@@ -38,14 +37,12 @@ function PropertyType() {
 
     const handleAddress = async (event) => {
         setInputValue(event.target.value)
-        try {
-            const endpoint = `https://api.mapbox.com/geocoding/v5/mapbox.places/${event.target.value}.json?access_token=pk.eyJ1IjoibWhkemFtIiwiYSI6ImNsZnRuOWVlczAyaTIzc25yNm96a3ltenoifQ.MfJmNXS8SqvbICe301UesA&autocomplete=true`
-            const response = await fetch(endpoint)
-            const results = await response.json()
-            setSuggestions(results?.features)
-        } catch (error) {
-            console.log('Error fetching data, ', error)
-        }
+        setInputValue(event.target.value)
+        setValue('Address', event.target.value)
+        setValue('coordinates.lat', '123')
+        setValue('coordinates.log', '123')
+        setSuggestions([])
+       
     }
 
     const [RoomType, setRoomType] = React.useState('')
@@ -120,19 +117,7 @@ function PropertyType() {
                                 options={suggestions}
                                 inputValue={inputValue}
                                 {...field}
-                                onChange={(event, newValue) => {
-                                    console.log(newValue)
-                                    setInputValue(newValue.place_name)
-                                    setValue('Address', newValue.place_name)
-                                    setValue(
-                                        'coordinates.lat',
-                                        newValue.center[1]
-                                    )
-                                    setValue(
-                                        'coordinates.log',
-                                        newValue.center[0]
-                                    )
-                                }}
+                               
                                 onInputChange={handleAddress}
                                 getOptionLabel={(option) =>
                                     option.place_name ? option.place_name : ''

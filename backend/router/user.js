@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const app = express();
-const {uploads3} = require("../controller/multer");
+const { itemUpload} = require("../controller/multer");
 require("dotenv").config();
 
 const {
@@ -32,7 +32,6 @@ const {
 const { verifyJWT } = require("../controller/jwt/jwtVerify");
 const {
   CreateCheckout,
-  PlaceOrder,
   getOrders,
   Cancelbooking,
   getReservation,
@@ -62,13 +61,13 @@ router.post("/logout", userlogout);
 
 router.post("/userdetails", enteruserdetails);
 
-router.post("/addproperty", uploads3.array("images"), addproperty);
+router.post("/addproperty", itemUpload.array("images"), addproperty);
 
 router.post("/become-a-host", hostverify);
 
 router.post("/is-a-host", checkhoststatus);
 
-router.put("/editProperty", uploads3.array("images"), EditProperty);
+router.put("/editProperty", itemUpload.array("images"), EditProperty);
 
 router.delete("/removeProperty/:id", removeProperty);
 
@@ -79,8 +78,6 @@ router.get("/getAllAmenities", getAmenities);
 router.get("/getRoomType", getRoomType);
 
 router.post("/create-checkout-session", CreateCheckout);
-
-router.post("/placeorder", PlaceOrder);
 
 router.get("/viewOrders/:userid", getOrders);
 
